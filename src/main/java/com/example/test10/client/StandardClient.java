@@ -50,6 +50,9 @@ public class StandardClient {
                     .topic(Config.OUT_TOPIC_2)
                     .create();) {
                 Message<TestMessage> message = inputConsumer.receive();
+                if (transaction != null) {
+                    abortTransaction(inputConsumer, message);
+                }
 
                 openTransaction(client);
                 System.out.println("Received from: " + inputConsumer.getTopic());

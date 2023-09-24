@@ -14,6 +14,8 @@ import lombok.Data;
 @Data
 public final class Metadata implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private static final ObjectMapper mapper = new ObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .setSerializationInclusion(Include.NON_EMPTY);
@@ -36,7 +38,7 @@ public final class Metadata implements Serializable {
         return metadata.toString();
     }
 
-    private static final long serialVersionUID = 1L;
+    private long vpTimestamp;
 
     @Override
     public String toString() {

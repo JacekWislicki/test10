@@ -15,6 +15,9 @@ import com.example.test10.vp.FunctionUtils;
 import com.example.test10.vp.MessageWrapper;
 import com.example.test10.vp.Metadata;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 class InFunction implements Function<TestMessage, Void> {
 
     private Transaction transaction;
@@ -25,35 +28,53 @@ class InFunction implements Function<TestMessage, Void> {
             abortTransaction(context);
         }
 
+        System.out.println("Received from: " + context.getCurrentRecord().getTopicName());
         MessageWrapper<TestMessage> wrapper = new MessageWrapper<>(input, new Metadata());
         openTransaction(context);
-        FunctionUtils.produce(wrapper, context, Config.OUT_TOPIC_1, null);
-        FunctionUtils.produce(wrapper, context, Config.OUT_TOPIC_2, null);
+        System.out.println("Sending to:" + Config.OUT_TOPIC_1);
+        FunctionUtils.produce(wrapper, context, Config.OUT_TOPIC_1, TestMessage.class);
+        System.out.println("Sending to:" + Config.OUT_TOPIC_2);
+        FunctionUtils.produce(wrapper, context, Config.OUT_TOPIC_2, TestMessage.class);
+        delay();
         commitTransaction(context);
 
         return null;
     }
 
+    private void delay() {
+        long delay = 1100;
+        System.out.println("Force delay for " + delay + " ms");
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private void openTransaction(Context context) throws PulsarClientException {
-        PulsarClient client = context.getPulsarClient();
+        PulsarClient client = context
+            .getPulsarClientBuilder()
+            .enableTransaction(true)
+            .build();
         CompletableFuture<Transaction> transactionFuture = client.newTransaction().withTransactionTimeout(1, TimeUnit.SECONDS).build();
         try {
             transaction = transactionFuture.get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            // TODO log exception?
+            log.error("Cannot open transation", e);
             context.getCurrentRecord().fail();
         }
     }
 
     private void commitTransaction(Context context) {
         try {
+            context.getCurrentRecord().ack();
             transaction.commit().get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            // TODO log exception?
+            log.error("Cannot commit transation", e);
             context.getCurrentRecord().fail();
         }
     }
@@ -64,7 +85,7 @@ class InFunction implements Function<TestMessage, Void> {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            // TODO log exception?
+            log.error("Cannot abort transation", e);
             context.getCurrentRecord().fail();
         }
     }

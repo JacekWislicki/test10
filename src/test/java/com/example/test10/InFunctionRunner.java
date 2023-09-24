@@ -14,6 +14,7 @@ class InFunctionRunner {
         functionConfig.setSubName(Config.IN_SUB);
         functionConfig.setClassName(InFunction.class.getName());
         functionConfig.setRuntime(FunctionConfig.Runtime.JAVA);
+        functionConfig.setAutoAck(false);
 
         LocalRunner localRunner = LocalRunner.builder().functionConfig(functionConfig).build();
         localRunner.start(false);
