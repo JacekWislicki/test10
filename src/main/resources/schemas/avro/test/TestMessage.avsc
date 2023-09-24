@@ -1,0 +1,37 @@
+{
+    "type":"record",
+    "name":"TestMessage",
+    "namespace":"com.example.test10.model",
+    "fields":[
+        {
+            "name":"eventIdentifier",
+            "type":[
+                "null",
+                "string"
+            ],
+            "default":null
+        },
+        {
+            "name":"type",
+            "type":[
+                "null",
+                {
+                    "type":"enum",
+                    "name":"Type",
+                    "namespace":"com.example.test10.model",
+                    "symbols": [ "UNKNOWN", "TYPE_B", "TYPE_C" ],
+                    "default":"UNKNOWN"
+                }
+            ],
+            "default":null
+        },
+        {
+            "name":"active",
+            "type":[
+                "null",
+                "boolean"
+            ],
+            "default":null
+        }
+    ]
+}
