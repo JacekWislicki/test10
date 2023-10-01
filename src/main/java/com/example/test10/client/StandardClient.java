@@ -41,14 +41,8 @@ public class StandardClient {
             .subscribe();
         while (true) {
             try (
-                Producer<TestMessage> outputProducer1 = client
-                    .newProducer(Schema.AVRO(TestMessage.class))
-                    .topic(Config.OUT_TOPIC_1)
-                    .create();
-                Producer<TestMessage> outputProducer2 = client
-                    .newProducer(Schema.AVRO(TestMessage.class))
-                    .topic(Config.OUT_TOPIC_2)
-                    .create();) {
+                Producer<TestMessage> outputProducer1 = createProducer(client);
+                Producer<TestMessage> outputProducer2 = createProducer(client);) {
                 Message<TestMessage> message = inputConsumer.receive();
                 TestMessage testMessage = message.getValue();
                 if (transaction != null) {
@@ -65,6 +59,14 @@ public class StandardClient {
                 ackAndCommitTransaction(inputConsumer, message);
             }
         }
+    }
+
+    private Producer<TestMessage> createProducer(PulsarClient client) throws PulsarClientException {
+        return client
+            .newProducer(Schema.AVRO(TestMessage.class))
+            .topic(Config.OUT_TOPIC_1)
+            .sendTimeout(0, TimeUnit.SECONDS)
+            .create();
     }
 
     private void delay() {
