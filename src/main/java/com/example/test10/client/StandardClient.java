@@ -50,15 +50,16 @@ public class StandardClient {
                     .topic(Config.OUT_TOPIC_2)
                     .create();) {
                 Message<TestMessage> message = inputConsumer.receive();
+                TestMessage testMessage = message.getValue();
                 if (transaction != null) {
                     abortTransaction(inputConsumer, message);
                 }
 
                 openTransaction(client);
                 System.out.println("Received from: " + inputConsumer.getTopic());
-                outputProducer1.send(message.getValue());
+                outputProducer1.newMessage(transaction).value(testMessage).send();
                 System.out.println("Sending to:" + outputProducer1.getTopic());
-                outputProducer2.send(message.getValue());
+                outputProducer2.newMessage(transaction).value(testMessage).send();
                 System.out.println("Sending to:" + outputProducer2.getTopic());
                 delay();
                 ackAndCommitTransaction(inputConsumer, message);

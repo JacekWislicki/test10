@@ -48,7 +48,8 @@ public class FunctionUtils {
 
     private static <T extends SpecificRecordBase> TypedMessageBuilder<T> prepareMessageBuilder(Context context, MessageWrapper<T> wrapper,
         String topic, Class<T> clazz) throws PulsarClientException {
-        return context.newOutputMessage(topic, Schema.AVRO(clazz))
+        return context
+            .newOutputMessage(topic, Schema.AVRO(clazz))
             .property(PulsarUtils.SCHEMA, PulsarUtils.getAvroSchemaString(clazz))
             .property(PulsarUtils.METADATA, wrapper.getMetadataString())
             .value(wrapper.getMessage());
