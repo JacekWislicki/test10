@@ -92,7 +92,7 @@ public class StandardClient {
 
     private void ackAndCommitTransaction(Consumer<TestMessage> consumer, Message<TestMessage> message) throws PulsarClientException {
         try {
-            consumer.acknowledge(message);
+            consumer.acknowledgeAsync(message.getMessageId(), transaction);
             transaction.commit().get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
